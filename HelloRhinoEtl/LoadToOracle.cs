@@ -15,8 +15,8 @@ using System.Data;
 using Rhino.Etl.Core.Infrastructure;
 namespace HelloRhinoEtl
 {
-
     #region LoadToOracle
+
     public class ExtraerFromDatabase : EtlProcess
     {
         protected override void Initialize()

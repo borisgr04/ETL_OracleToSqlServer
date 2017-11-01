@@ -91,12 +91,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdoNet.cs" />
+    <Compile Include="EjemploBatch.cs" />
     <Compile Include="LoadToOracle.cs" />
-    <Compile Include="OtroArchivo.cs" />
+    <Compile Include="JoinFileProcess.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Push1ToSqlServer.cs" />
     <Compile Include="Push2ToSqlServer.cs" />
+    <Compile Include="UsoDeORM.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

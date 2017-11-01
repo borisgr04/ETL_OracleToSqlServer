@@ -53,14 +53,23 @@ namespace HelloRhinoEtl
         }
     }
 
-
+    
     class Program
     {
         static void Main(string[] args)
         {
-            LoadTest(new FromOracleToSqlServer());
+            var Ejemplo = "OracleToSql";
+            if (Ejemplo == "OracleToSql")
+            {
+                Execute(new FromOracleToSqlServer());
+            }
+            else
+            {
+                Execute(new JoinFileProcess());
+            }
         }
-        private static void LoadTest(EtlProcess etl )
+
+        private static void Execute(EtlProcess etl )
         {
             Console.WriteLine("----Lets create a Rhino-ETL ----");
             Console.WriteLine("--------------------------------");

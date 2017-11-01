@@ -18,59 +18,7 @@ using Rhino.Etl.Core.Infrastructure;
 
 namespace HelloRhinoEtl
 {
-    public static class InicializarDatosEF {
-        private static void InicializarDatos()
-        {
-            #region MyRegion
-            using (TestContext db = new TestContext())
-            {
-                string[] Nombres = { "Anya", "Boris", "Arturo" };
-                foreach (var item in Nombres)
-                {
-                    db.Users.Add(new User() { Email = item + "@gmail.com", Name = item, TestMsg = "Ok.." });
-                }
-                int i = db.SaveChanges();
-                Console.WriteLine("Reg" + i.ToString());
-                Console.ReadKey();
-            }
-            #endregion
-        }
-    }
-    public static class AdoNet {
-        private static int GetUserCount(string where)
-        {
-            return Use.Transaction<int>("Test", delegate (IDbCommand command)
-            {
-                command.CommandText = "select count(*) from users where " + where;
-                return (int)command.ExecuteScalar();
-            });
-        }
-        static void AdoNetExample()
-        {
-            string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=TestETL;Integrated Security=SSPI";
-            string queryString = "SELECT * from users ";
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                SqlCommand command = new SqlCommand(queryString, connection);
-                try
-                {
-                    connection.Open();
-                    SqlDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        Console.WriteLine("\t{0}\t{1}\t{2}",
-                            reader[0], reader[1], reader[2]);
-                    }
-                    reader.Close();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-                Console.ReadLine();
-            }
-        }
-    }
+ 
     /// <summary>
     /// The Data Class that represent each row. Notice the DelimetedRecord annotation. That is from the File Helper
     /// </summary>
@@ -137,6 +85,7 @@ namespace HelloRhinoEtl
     /// <summary>
     /// We will just put data on the screen. Would be more realistic to put to other file or database
     /// </summary>
+
     public class PutData : AbstractOperation
     {
         public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
@@ -157,7 +106,7 @@ namespace HelloRhinoEtl
     /// Here is the actual ETL process where all steps are registred. 
     /// It represent one dataflow, We get two datasources Join them, Transform data and put it somewhere.
     /// </summary>
-    public class ExNihiloProcess : EtlProcess
+    public class JoinFileProcess : EtlProcess
     {
         protected override void Initialize()
         {    // my path to the file is D:\Users\Patrik\Documents\GitHub\HelloWorld-Rhino-ETL\HelloRhinoEtl\UntransformedWordList.csv
@@ -175,40 +124,8 @@ namespace HelloRhinoEtl
     }
 
     
-    public class BatchUpdateUserNames : SqlBatchOperation
-    {
-        public BatchUpdateUserNames()
-            : base("Test")
-        {
-        }
-
-        /// <summary>
-        /// Prepares the command from the given row
-        /// </summary>
-        /// <param name="row">The row.</param>
-        /// <param name="command">The command.</param>
-        protected override void PrepareCommand(Row row, SqlCommand command)
-        {
-            command.CommandText = "UPDATE Users SET Name = @Name, TestMsg = 'UpperCased' WHERE Id = @Id";
-            command.Parameters.AddWithValue("@Name", row["Name"]);
-            command.Parameters.AddWithValue("@Id", row["Id"]);
-        }
-    }
-    public class User
-    {
-        public int UserId { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string TestMsg { get; set; }
-    }
-    public class TestContext : DbContext
-    {
-        public TestContext()
-        {
-
-        }
-        public DbSet<User> Users { get; set; }
-    }
+  
+ 
 
 
 
