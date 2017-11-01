@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using HelloRhinoEtl;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +9,17 @@ using System.Threading.Tasks;
 namespace HelloRhinoEtl.Tests
 {
     [TestFixture]
-    public class TestClass
+    public class TestFromOracleToSqlServerClass
     {
         [Test]
-        public void TestMethod()
+        public void TestFromOracleToSqlServer()
         {
+            FromOracleToSqlServer etl =new FromOracleToSqlServer();
+            etl.Execute();
+            foreach (var item in etl.GetAllErrors())
+            {
+                Console.WriteLine(item.Message);
+            }
             // TODO: Add your test code here
             Assert.Pass("Your first passing test");
         }
