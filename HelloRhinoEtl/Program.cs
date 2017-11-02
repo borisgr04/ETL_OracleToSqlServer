@@ -94,10 +94,14 @@ namespace HelloRhinoEtl
 
     public class FromOracleToSqlServer : EtlProcess
     {
+        readonly int IdInicial=0;
+        public FromOracleToSqlServer(int idInicial) {
+            IdInicial = idInicial;
+        }
         protected override void Initialize()
         {
             Register(new ExtraerVigenciaFromOracle())
-                .Register(new TransformData())
+                .Register(new TransformData(IdInicial))
                 .Register(new LoadToSqlServer());
         }
     }
@@ -110,6 +114,13 @@ namespace HelloRhinoEtl
     }
     public class TransformData : AbstractOperation
     {
+        private int IdInicial;
+
+        public TransformData(int idInicial)
+        {
+            IdInicial = idInicial;
+        }
+
         public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
         {
             foreach (Row row in rows)
@@ -117,6 +128,7 @@ namespace HelloRhinoEtl
                 var revWord = row["Year_Vig"].ToString();
                 row["Year"] = new string(revWord.ToCharArray().Reverse().ToArray());
                 row["Estado"] = "AC";
+                row["IdCalculado"] = IdInicial++;
                 yield return row;
             }
         }
@@ -125,7 +137,7 @@ namespace HelloRhinoEtl
     {
         public LoadToSqlServer() : base("Test")
         {
-            Command = "INSERT INTO Vigencias (Year,Estado) VALUES(@Year,@Estado)";
+            Command = "INSERT INTO Vigencias (Year,Estado,IdCalculado) VALUES(@Year,@Estado,@IdCalculado)";
         }
     }
 
@@ -135,13 +147,13 @@ namespace HelloRhinoEtl
     {
         static void Main(string[] args)
         {
-            var Command = "Join";
+            var Command = "OracleToSql";
             Console.WriteLine("----Lets create a Rhino-ETL ----");
             Console.WriteLine("--------------------------------");
             Console.WriteLine(Command);
             if (Command == "OracleToSql")
             {
-                Execute(new FromOracleToSqlServer());
+                Execute(new FromOracleToSqlServer(10));
             }
             if (Command == "JoinFile")
             {
