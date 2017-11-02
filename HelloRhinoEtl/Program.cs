@@ -16,18 +16,94 @@ using Rhino.Etl.Core.Infrastructure;
 
 namespace HelloRhinoEtl
 {
+    #region ETLActividades
+    public class FromSqlServerJoinOracleToSqlServer : EtlProcess
+    {
+        protected override void Initialize()
+        {
+            Register(
+                    new JoinActividadVigencia()
+                    .Left(new ExtraerActividadesFromOracle())
+                    .Right(new ExtraerVigenciaFromSqlServer())
+                    );
+            
+            Register(new LoadActividadesToSqlServer());
+        }
+    }
+
+    public class JoinActividadVigencia : JoinOperation
+    {
+        
+        protected override void SetupJoinConditions()
+        {
+            InnerJoin
+                .Left("Vigencia")
+                .Right("Year");
+        }
+
+        protected override Row MergeRows(Row leftRow, Row rightRow)
+        {
+            Row row = leftRow.Clone();
+            row["Vigencia_VigenciaId"] = rightRow["VigenciaId"].ToString();
+            return row;
+        }
+    }
+
+    public class ExtraerActividadesFromOracle : ConventionInputCommandOperation
+    {
+        public ExtraerActividadesFromOracle() : base("OracleDbContext")
+        {
+            Command = "SELECT Nom_Act,Vigencia,Estado FROM PActividades";
+        }
+    }
+
+    public class ExtraerVigenciaFromSqlServer : ConventionInputCommandOperation
+    {
+        public ExtraerVigenciaFromSqlServer() : base("Test")
+        {
+            Command = "select Year,VigenciaId from Vigencias";
+        }
+    }
+
+   
+    public class TransformActividadesData : AbstractOperation
+    {
+        public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+        {
+            foreach (Row row in rows)
+            {
+                //var revWord = row["Year_Vig"].ToString();
+                //row["Year"] = new string(revWord.ToCharArray().Reverse().ToArray());
+                //row["Estado"] = "AC";
+                yield return row;
+            }
+        }
+    }
+
+    public class LoadActividadesToSqlServer : ConventionOutputCommandOperation
+    {
+        public LoadActividadesToSqlServer() : base("Test")
+        {
+            Command = "INSERT INTO Actividads (Nombre,Estado,Vigencia_VigenciaId) VALUES(@Nom_Act,@Estado,@Vigencia_VigenciaId)";
+        }
+    }
+
+    #endregion
+  
+    #region ETLVigencia
+
     public class FromOracleToSqlServer : EtlProcess
     {
         protected override void Initialize()
         {
-            Register(new ExtraerFromOracle())
+            Register(new ExtraerVigenciaFromOracle())
                 .Register(new TransformData())
                 .Register(new LoadToSqlServer());
         }
     }
-    public class ExtraerFromOracle : ConventionInputCommandOperation
+    public class ExtraerVigenciaFromOracle : ConventionInputCommandOperation
     {
-        public ExtraerFromOracle() : base("OracleDbContext")
+        public ExtraerVigenciaFromOracle() : base("OracleDbContext")
         {
             Command = "select Year_Vig from vigencias";
         }
@@ -39,8 +115,8 @@ namespace HelloRhinoEtl
             foreach (Row row in rows)
             {
                 var revWord = row["Year_Vig"].ToString();
-                row["Name"] = new string(revWord.ToCharArray().Reverse().ToArray());
-                row["Email"] = $"{revWord}@gmail.com";
+                row["Year"] = new string(revWord.ToCharArray().Reverse().ToArray());
+                row["Estado"] = "AC";
                 yield return row;
             }
         }
@@ -49,31 +125,44 @@ namespace HelloRhinoEtl
     {
         public LoadToSqlServer() : base("Test")
         {
-            Command = "INSERT INTO Users (Name,Email) VALUES(@Name,@Email)";
+            Command = "INSERT INTO Vigencias (Year,Estado) VALUES(@Year,@Estado)";
         }
     }
 
-    
+    #endregion
+
     class Program
     {
         static void Main(string[] args)
         {
-            var Ejemplo = "OracleToSql";
-            if (Ejemplo == "OracleToSql")
+            var Command = "Join";
+            Console.WriteLine("----Lets create a Rhino-ETL ----");
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine(Command);
+            if (Command == "OracleToSql")
             {
                 Execute(new FromOracleToSqlServer());
             }
-            else
+            if (Command == "JoinFile")
             {
                 Execute(new JoinFileProcess());
             }
+            if (Command == "InicializarTestDB")
+            {
+                InicializarDatosEF.InicializarDatos();
+            }
+            if (Command == "JoinBD")
+            {
+                Execute(new FromSqlServerJoinOracleToSqlServer());
+            }
+            
+            Console.WriteLine("-------------------------------");
+            Console.WriteLine("----Hit any Rhino to exit------");
+            Console.ReadKey();
         }
 
         private static void Execute(EtlProcess etl )
         {
-            Console.WriteLine("----Lets create a Rhino-ETL ----");
-            Console.WriteLine("--------------------------------");
-            // Here is the actual work. 
             using (etl)
             {
                 etl.Execute();
@@ -82,9 +171,7 @@ namespace HelloRhinoEtl
                     Console.WriteLine(item.Message);
                 }
             }
-            Console.WriteLine("-------------------------------");
-            Console.WriteLine("----Hit any Rhino to exit------");
-            Console.ReadKey();
+            
         }
     }
     

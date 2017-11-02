@@ -68,16 +68,22 @@ namespace HelloRhinoEtl
     {
         protected override void SetupJoinConditions()
         {
+            //InnerJoin
+            //    .Left("Id")
+            //    .Right("Id");
             InnerJoin
-                .Left("Id")
-                .Right("Id");
+                .Left("Vigencia")
+                .Right("Year");
         }
 
         protected override Row MergeRows(Row leftRow, Row rightRow)
         {
+            //Row row = leftRow.Clone();
+            //row["AWord"] = leftRow["AWord"].ToString() + " " +
+            //                           rightRow["AWord"].ToString();
+            //return row;
             Row row = leftRow.Clone();
-            row["AWord"] = leftRow["AWord"].ToString() + " " +
-                                       rightRow["AWord"].ToString();
+            row["Vigencia_VigenciaId"] = rightRow["VigenciaId"].ToString();
             return row;
         }
     }
