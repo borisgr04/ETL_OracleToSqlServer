@@ -147,7 +147,7 @@ namespace HelloRhinoEtl
     {
         static void Main(string[] args)
         {
-            var Command = "OracleToSql";
+            var Command = "ConsultarDB";
             Console.WriteLine("----Lets create a Rhino-ETL ----");
             Console.WriteLine("--------------------------------");
             Console.WriteLine(Command);
@@ -162,6 +162,10 @@ namespace HelloRhinoEtl
             if (Command == "InicializarTestDB")
             {
                 InicializarDatosEF.InicializarDatos();
+            }
+            if (Command == "ConsultarDB")
+            {
+               Console.WriteLine("Reg:" + InicializarDatosEF.ConsultarDatos());
             }
             if (Command == "JoinBD")
             {

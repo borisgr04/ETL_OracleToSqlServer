@@ -14,7 +14,7 @@ namespace HelloRhinoEtl.Tests
         [Test]
         public void TestFromOracleToSqlServer()
         {
-            FromOracleToSqlServer etl =new FromOracleToSqlServer();
+            FromOracleToSqlServer etl =new FromOracleToSqlServer(1);
             etl.Execute();
             foreach (var item in etl.GetAllErrors())
             {
@@ -22,6 +22,23 @@ namespace HelloRhinoEtl.Tests
             }
             // TODO: Add your test code here
             Assert.Pass("Your first passing test");
+        }
+        [Test]
+        public void TestConsultaCount()
+        {
+            Assert.Greater(InicializarDatosEF.ConsultarDatos(), 350000);
+        }
+        [Test]
+        public void TestConsultarVigencia()
+        {
+            Vigencia v = InicializarDatosEF.ConsultarVigencia("100000");
+            Assert.NotNull(v);
+            Assert.AreEqual(v.Year, "100000");
+        }
+        [Test]
+        public void TestConsultarAllVigencia()
+        {
+            Assert.AreEqual(InicializarDatosEF.ConsultarAllVigencia("0").Count,1817628);
         }
     }
 }
