@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Hangfire;
+using System.Threading;
 
 namespace WebAppHangfire.Controllers
 {
@@ -10,6 +12,8 @@ namespace WebAppHangfire.Controllers
     {
         public ActionResult Index()
         {
+            BackgroundJob.Enqueue(() => Console.WriteLine("Hello, world!"));
+            BackgroundJob.Enqueue(() => Thread.Sleep(5000));
             return View();
         }
 
