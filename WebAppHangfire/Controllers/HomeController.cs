@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Hangfire;
 using System.Threading;
+using WebAppHangfire.Logic;
 
 namespace WebAppHangfire.Controllers
 {
@@ -12,9 +13,11 @@ namespace WebAppHangfire.Controllers
     {
         public ActionResult Index()
         {
-            BackgroundJob.Enqueue(() => Console.WriteLine("Hello, world!"));
-            BackgroundJob.Enqueue(() => Thread.Sleep(5000));
-            return View();
+            TrabajoLento tlento = new TrabajoLento();
+            foreach (var str in new string[] { "f1", "f2", "f3" }) {
+                BackgroundJob.Enqueue(() => tlento.CreacionArchivosLog(str));
+            }
+           return View();
         }
 
         public ActionResult About()
